@@ -1,0 +1,93 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background: black;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+}
+
+/* 光粒アニメーション */
+#particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+
+    /* ← canvas がクリックを奪わない */
+    pointer-events: none;
+}
+
+/* 戻るボタン */
+#back {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+
+    /* ← PC でも確実にクリックできる四角い領域を作る */
+    width: 40px;
+    height: 40px;
+
+    padding: 10px;
+    box-sizing: content-box;
+
+    /* ← 画像を枠内に収める（透明余白があっても大丈夫） */
+    object-fit: contain;
+
+    /* ← 最前面に固定 */
+    z-index: 9999;
+
+    cursor: pointer;
+}
+
+/* タイトル */
+#title {
+    position: fixed;
+    top: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 6vw;
+    max-font-size: 32px;
+    color: white;
+    text-shadow: 0 0 10px rgba(255,255,255,0.8);
+    z-index: 10;
+}
+
+/* リスト全体 */
+#list {
+    position: absolute;
+    top: 100px;
+    bottom: 0;
+    width: 100%;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* セクションタイトル */
+.section-title {
+    color: white;
+    font-size: 22px;
+    margin: 20px 0 10px 0;
+    text-shadow: 0 0 6px rgba(255,255,255,0.7);
+    text-align: left;
+}
+
+/* リスト項目 */
+.item {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    color: white;
+    font-size: 5vw;
+    max-font-size: 24px;
+    text-shadow: 0 0 6px rgba(255,255,255,0.6);
+    text-align: left;
+    cursor: pointer;
+}
+
+.item:hover {
+    background: rgba(255,255,255,0.15);
+}

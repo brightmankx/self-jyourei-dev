@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>経文</title>
+    <link rel="stylesheet" href="mantra.css">
+</head>
+<body>
+
+    <!-- ▼ 説明文 -->
+    <div style="font-size: 14px; color: #FFF9C4; margin: 12px; font-family: serif; text-align:center;">
+        暗唱しながら画面をタップしてください
+    </div>
+
+    <!-- 光粒アニメーション -->
+    <canvas id="particles"></canvas>
+
+    <!-- 戻るボタン -->
+    <img id="back" src="ic_back.png" alt="戻る">
+
+    <!-- タイトル -->
+    <div id="title"></div>
+
+    <!-- 本文 -->
+    <div id="text"></div>
+
+    <!-- ★ 透明のタップ領域（画面全体をタップ可能にする） -->
+    <div id="tapArea"></div>
+
+    <!-- スクリプト -->
+    <script src="light_particles.js"></script>
+    <script src="mantra.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
