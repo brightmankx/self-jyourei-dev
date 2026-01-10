@@ -170,7 +170,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const now = Date.now();
             if (now - lastBellTime < coolTime) return;
 
-            if (shake < -shakeThreshold) {
+            if (shake < shakeThreshold) {
                 lastBellTime = now;
 
                 const index = Math.floor(Math.random() * 8) + 1;
@@ -180,3 +180,4 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
