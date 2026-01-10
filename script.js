@@ -146,7 +146,7 @@ window.addEventListener("DOMContentLoaded", () => {
         let shake = 0;
 
         let lastBellTime = 0;
-        const coolTime = 100;
+        const coolTime = 150;
 
         window.addEventListener("devicemotion", (event) => {
             const acc = event.accelerationIncludingGravity;
@@ -178,7 +178,4 @@ window.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
 });
-
-
