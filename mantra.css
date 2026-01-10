@@ -55,13 +55,13 @@ body {
 
 /* 本文スクロール領域（ここが最重要） */
 #scrollArea {
-    position: fixed;      /* ← relative ではなく fixed */
-    top: 120px;           /* タイトル＋メッセージの下から開始 */
+    position: fixed;
+    top: 120px;     /* タイトル＋メッセージの下から開始 */
     left: 0;
     width: 100%;
-    bottom: 0;            /* 画面下まで */
-    overflow-y: auto;     /* ← この中だけスクロール */
-    z-index: 10;
+    bottom: 0;      /* 画面下まで */
+    overflow-y: auto;
+    z-index: 10;    /* tapArea より下 */
 }
 
 /* 本文 */
@@ -88,13 +88,14 @@ ruby rt {
     color: #FFD;
 }
 
-/* タップ領域（scrollArea と同じ範囲） */
+/* タップ領域（行送り用） */
 #tapArea {
     position: fixed;
     top: 120px;
     left: 0;
     width: 100%;
     bottom: 0;
-    z-index: 5;
+    z-index: 999;          /* scrollArea より前面 */
     background: transparent;
+    pointer-events: auto;  /* ← タップを拾う */
 }
