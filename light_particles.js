@@ -41,7 +41,7 @@ class LightParticles {
             baseSize: size,
             sizeSpeed: (Math.random() - 0.5) * 0.02,
 
-            alpha: Math.random() * 0.7 + 0.3,
+            alpha: Math.random() * 0.5 + 0.2,
             alphaSpeed: (Math.random() - 0.5) * 0.005,
 
             color: Math.random() < 0.5 ? "255,255,255" : "255,215,0"
@@ -82,7 +82,7 @@ class LightParticles {
 
             this.ctx.beginPath();
             this.ctx.fillStyle = `rgba(${p.color}, ${p.alpha})`;
-            this.ctx.shadowBlur = 15;
+            this.ctx.shadowBlur = 40;
             this.ctx.shadowColor = `rgba(${p.color}, ${p.alpha})`;
             this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             this.ctx.fill();
