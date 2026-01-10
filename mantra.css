@@ -52,6 +52,15 @@ body {
     pointer-events: none; 
 }
 
+/* 本文スクロール領域（新規追加） */
+#scrollArea {
+    position: relative;
+    margin-top: 120px; /* タイトル＋メッセージの高さ分 */
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+    width: 100%;
+}
+
 /* 本文（スクロール領域） */
 #text {
     width: 90%;
