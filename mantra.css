@@ -3,6 +3,7 @@ body {
     background: black;
     color: #FFF9C4;
     font-family: "Noto Serif JP", serif;
+    overflow: hidden; /* ← 画面全体のスクロールを禁止 */
 }
 
 /* 光粒アニメーション */
@@ -13,7 +14,7 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: -1; /* 背面へ */
+    z-index: -1;
 }
 
 /* 戻るボタン */
@@ -24,7 +25,7 @@ body {
     width: 40px;
     height: 40px;
     cursor: pointer;
-    z-index: 9999;   /* ← これで必ず最前面 */
+    z-index: 9999;
 }
 
 /* タイトル */
@@ -39,53 +40,47 @@ body {
     z-index: 15;
 }
 
-/* トップメッセージ（タイトルの下に固定） */
+/* トップメッセージ */
 .top-message {
     position: fixed;
-    top: 70px;   /* ← タイトルの下に配置される */
+    top: 70px;
     width: 100%;
     font-size: 20px;
     color: #FFF9C4;
     text-align: center;
     font-family: "Noto Serif JP", serif;
     z-index: 20;
-    pointer-events: none; 
+    pointer-events: none;
 }
 
-/* 本文スクロール領域（新規追加） */
+/* 本文スクロール領域（ここが最重要） */
 #scrollArea {
-    position: relative;
-    margin-top: 120px;
-    height: calc(100vh - 120px);
-    overflow-y: auto;
+    position: fixed;      /* ← relative ではなく fixed */
+    top: 120px;           /* タイトル＋メッセージの下から開始 */
+    left: 0;
     width: 100%;
+    bottom: 0;            /* 画面下まで */
+    overflow-y: auto;     /* ← この中だけスクロール */
     z-index: 10;
 }
 
+/* 本文 */
 #text {
     width: 90%;
     margin: 0 auto;
     padding-bottom: 40px;
 }
 
-/* 各行（左寄せ） */
+/* 各行 */
 .line {
     margin: 12px 0;
     text-align: left;
 }
 
-/* ▼ 文字サイズ */
-.mantra-small .line {
-    font-size: 22px;
-}
-
-.mantra-medium .line {
-    font-size: 26px;
-}
-
-.mantra-large .line {
-    font-size: 32px;
-}
+/* 文字サイズ */
+.mantra-small .line { font-size: 22px; }
+.mantra-medium .line { font-size: 26px; }
+.mantra-large .line { font-size: 32px; }
 
 /* ルビ */
 ruby rt {
@@ -93,13 +88,13 @@ ruby rt {
     color: #FFD;
 }
 
-/* ★ 透明のタップ領域（画面全体） */
+/* タップ領域（scrollArea と同じ範囲） */
 #tapArea {
     position: fixed;
-    top: 160px;
+    top: 120px;
     left: 0;
     width: 100%;
-    height: calc(100vh - 160px);
+    bottom: 0;
     z-index: 5;
     background: transparent;
 }
