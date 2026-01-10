@@ -93,9 +93,11 @@ function renderState() {
     }
 
 // ★ 本文スクロール領域をスムーズにスクロール
-scroller.scrollTo({
-    top: scroller.scrollHeight,
-    behavior: "smooth"
+requestAnimationFrame(() => {
+    scroller.scrollTo({
+        top: scroller.scrollHeight,
+        behavior: "smooth"
+    });
 });
 }
 
