@@ -92,8 +92,11 @@ function renderState() {
         container.appendChild(createLineElement(lines[nextIndex], "preview"));
     }
 
-    // ★ 本文スクロール領域をスクロール
-    scroller.scrollTop = scroller.scrollHeight;
+// ★ 本文スクロール領域をスムーズにスクロール
+scroller.scrollTo({
+    top: scroller.scrollHeight,
+    behavior: "smooth"
+});
 }
 
 // 行要素を作る
