@@ -28,7 +28,7 @@ class LightParticles {
     }
 
     createParticle() {
-        const size = Math.random() * 18 + 9;
+        const size = Math.random() * 10 + 4;  // 4〜14px
 
         return {
             x: Math.random() * this.canvas.width,
