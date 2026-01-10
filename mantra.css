@@ -91,10 +91,10 @@ ruby rt {
 /* ★ 透明のタップ領域（画面全体） */
 #tapArea {
     position: fixed;
-    top: 0;
+    top: 160px;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 160px);
     z-index: 5;
     background: transparent;
 }
