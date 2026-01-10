@@ -41,7 +41,7 @@ class LightParticles {
             baseSize: size,
             sizeSpeed: (Math.random() - 0.5) * 0.02,
 
-            alpha: Math.random() * 0.4 + 0.1,
+            alpha: Math.random() * 0.15 + 0.05,  // 0.05〜0.20 に弱める
             alphaSpeed: (Math.random() - 0.5) * 0.005,
 
             color: Math.random() < 0.5 ? "255,255,255" : "255,215,0"
