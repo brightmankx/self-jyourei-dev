@@ -67,7 +67,8 @@ async function loadText() {
 // 状態に応じて描画
 function renderState() {
     const container = document.getElementById("text");
-    if (!container) return;
+    const scroller = document.getElementById("scrollArea");
+    if (!container || !scroller) return;
 
     container.innerHTML = "";
 
@@ -76,7 +77,7 @@ function renderState() {
     // 最初の状態：1行目の最初の1文字
     if (currentIndex === -1) {
         container.appendChild(createLineElement(lines[0], "preview"));
-        container.scrollTop = 0;
+        scroller.scrollTop = 0;
         return;
     }
 
@@ -91,7 +92,8 @@ function renderState() {
         container.appendChild(createLineElement(lines[nextIndex], "preview"));
     }
 
-    container.scrollTop = container.scrollHeight;
+    // ★ 本文スクロール領域をスクロール
+    scroller.scrollTop = scroller.scrollHeight;
 }
 
 // 行要素を作る
