@@ -30,14 +30,17 @@ body {
 
 /* タイトル */
 #title {
+    position: fixed;
+    top: 20px;
+    width: 100%;
     text-align: center;
     font-size: 32px;
     font-weight: 700;
-    margin-top: 80px;
-    margin-bottom: 20px;
     color: #FFF9C4;
+    z-index: 15;
 }
 
+/* トップメッセージ（タイトルの下に固定） */
 .top-message {
     position: fixed;
     top: 70px;   /* ← タイトルの下に配置される */
@@ -53,6 +56,7 @@ body {
 #text {
     width: 90%;
     margin: 0 auto;
+    padding-top: 120px;   /* ← ここを追加（重要） */
     padding-bottom: 40px;
     overflow-y: auto;
     max-height: 70vh;
