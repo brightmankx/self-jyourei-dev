@@ -48,6 +48,7 @@ body {
     text-align: center;
     font-size: 6vw;
     max-font-size: 32px;
+    font-weight: 700;
     color: white;
     text-shadow: 0 0 10px rgba(255,255,255,0.8);
     z-index: 10;
@@ -68,6 +69,7 @@ body {
 .section-title {
     color: white;
     font-size: 22px;
+    font-weight: 700;
     margin: 20px 0 10px 0;
     text-shadow: 0 0 6px rgba(255,255,255,0.7);
     text-align: left;

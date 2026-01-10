@@ -31,7 +31,8 @@ body {
 /* タイトル */
 #title {
     text-align: center;
-    font-size: 24px;
+    font-size: 32px;
+    font-weight: 700;
     margin-top: 80px;
     margin-bottom: 20px;
     color: #FFF9C4;
@@ -54,15 +55,15 @@ body {
 
 /* ▼ 文字サイズ */
 .mantra-small .line {
-    font-size: 18px;
-}
-
-.mantra-medium .line {
     font-size: 22px;
 }
 
+.mantra-medium .line {
+    font-size: 26px;
+}
+
 .mantra-large .line {
-    font-size: 28px;
+    font-size: 32px;
 }
 
 /* ルビ */
