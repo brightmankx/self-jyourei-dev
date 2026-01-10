@@ -61,7 +61,8 @@ body {
     width: 100%;
     bottom: 0;      /* 画面下まで */
     overflow-y: auto;
-    z-index: 10;    /* tapArea より下 */
+    z-index: 10;
+    touch-action: pan-y; /* ← スクロールを確実に scrollArea に渡す */
 }
 
 /* 本文 */
@@ -97,5 +98,7 @@ ruby rt {
     bottom: 0;
     z-index: 999;          /* scrollArea より前面 */
     background: transparent;
-    pointer-events: none;   
+
+    pointer-events: auto;  /* ← タップを拾う */
+    touch-action: none;    /* ← ドラッグは拾わず scrollArea に渡す */
 }
