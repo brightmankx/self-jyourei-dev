@@ -82,5 +82,14 @@
 
     <!-- ▼ スクリプト -->
     <script src="script.js"></script>
+
+    <!-- ▼ PWA Service Worker 登録 -->
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("service-worker.js")
+                .catch(err => console.log("SW registration failed:", err));
+        }
+    </script>
+
 </body>
 </html>
