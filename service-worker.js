@@ -1,17 +1,19 @@
+const ROOT = "/self-jorei-dev/";  // ← あなたのリポジトリ名に変更
+
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open("v1").then((cache) => {
       return cache.addAll([
-        "/",
-        "/index.html",
-        "/mantra.html",
-        "/mantra.css",
-        "/script.js",
-        "/mantra.js",
-        "/light_particles.js",
-        "/mantra.json",
-        "/mantra_long.json",
-        "/ic_back.png"
+        ROOT,
+        ROOT + "index.html",
+        ROOT + "mantra.html",
+        ROOT + "mantra.css",
+        ROOT + "script.js",
+        ROOT + "mantra.js",
+        ROOT + "light_particles.js",
+        ROOT + "mantra.json",
+        ROOT + "mantra_long.json",
+        ROOT + "ic_back.png"
       ]);
     })
   );
