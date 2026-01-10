@@ -23,21 +23,10 @@ body {
     position: fixed;
     top: 20px;
     left: 20px;
-
-    /* ← PC でも確実にクリックできる四角い領域を作る */
     width: 40px;
     height: 40px;
-
-    padding: 10px;
-    box-sizing: content-box;
-
-    /* ← 画像を枠内に収める（透明余白があっても大丈夫） */
-    object-fit: contain;
-
-    /* ← 最前面に固定 */
-    z-index: 9999;
-
     cursor: pointer;
+    z-index: 9999;   /* ← これで必ず最前面 */
 }
 
 /* タイトル */
@@ -64,6 +53,7 @@ body {
     text-align: center;
     font-family: "Noto Serif JP", serif;
     z-index: 20;
+    pointer-events: none; 
 }
 
 /* リスト全体（トップメッセージの下から開始） */

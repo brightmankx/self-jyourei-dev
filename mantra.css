@@ -19,13 +19,13 @@ body {
 
 /* 戻るボタン */
 #back {
-    width: 40px;
-    height: 40px;
     position: fixed;
     top: 20px;
     left: 20px;
+    width: 40px;
+    height: 40px;
     cursor: pointer;
-    z-index: 10;
+    z-index: 9999;   /* ← これで必ず最前面 */
 }
 
 /* タイトル */
@@ -50,6 +50,7 @@ body {
     text-align: center;
     font-family: "Noto Serif JP", serif;
     z-index: 20;
+    pointer-events: none; 
 }
 
 /* 本文（スクロール領域） */
