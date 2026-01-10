@@ -54,18 +54,22 @@ body {
     z-index: 10;
 }
 
+/* トップメッセージ（タイトルの下に固定） */
 .top-message {
-    font-size: 16px;        /* ← 好きなサイズに変更できる */
+    position: fixed;
+    top: 70px;
+    width: 100%;
+    font-size: 20px;
     color: #FFF9C4;
-    margin: 12px;
     text-align: center;
-    font-family: "Noto Serif JP", serif;  /* ← 統一 */
+    font-family: "Noto Serif JP", serif;
+    z-index: 20;
 }
 
-/* リスト全体 */
+/* リスト全体（トップメッセージの下から開始） */
 #list {
     position: absolute;
-    top: 100px;
+    top: 140px;
     bottom: 0;
     width: 100%;
     overflow-y: auto;

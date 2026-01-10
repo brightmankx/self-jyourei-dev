@@ -39,11 +39,14 @@ body {
 }
 
 .top-message {
-    font-size: 16px;        /* ← 好きなサイズに変更できる */
+    position: fixed;
+    top: 70px;   /* ← タイトルの下に配置される */
+    width: 100%;
+    font-size: 20px;
     color: #FFF9C4;
-    margin: 12px;
     text-align: center;
-    font-family: "Noto Serif JP", serif;  /* ← 統一 */
+    font-family: "Noto Serif JP", serif;
+    z-index: 20;
 }
 
 /* 本文（スクロール領域） */
