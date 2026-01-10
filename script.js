@@ -173,9 +173,10 @@ window.addEventListener("DOMContentLoaded", () => {
             if (shake < -shakeThreshold) {
                 lastBellTime = now;
 
-                const index = Math.floor(Math.random() * 3) + 1;
+                const index = Math.floor(Math.random() * 8) + 1;
                 new Audio(`bell_${index}.mp3`).play();
             }
         });
     }
+
 });
