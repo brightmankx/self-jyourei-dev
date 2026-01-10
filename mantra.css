@@ -96,9 +96,9 @@ ruby rt {
     left: 0;
     width: 100%;
     bottom: 0;
-    z-index: 999;          /* scrollArea より前面 */
+    z-index: 999;
     background: transparent;
 
-    pointer-events: auto;  /* ← タップを拾う */
-    touch-action: none;    /* ← ドラッグは拾わず scrollArea に渡す */
+    pointer-events: auto;   /* ← タップを拾う */
+    touch-action: none;     /* ← ドラッグは拾わない（スクロールは scrollArea に渡す） */
 }
