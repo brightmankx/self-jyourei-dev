@@ -38,6 +38,14 @@ body {
     color: #FFF9C4;
 }
 
+.top-message {
+    font-size: 16px;        /* ← 好きなサイズに変更できる */
+    color: #FFF9C4;
+    margin: 12px;
+    text-align: center;
+    font-family: "Noto Serif JP", serif;  /* ← 統一 */
+}
+
 /* 本文（スクロール領域） */
 #text {
     width: 90%;
