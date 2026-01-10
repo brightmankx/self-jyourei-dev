@@ -82,7 +82,7 @@ class LightParticles {
 
             this.ctx.beginPath();
             this.ctx.fillStyle = `rgba(${p.color}, ${p.alpha})`;
-            this.ctx.shadowBlur = 50;
+            this.ctx.shadowBlur = 15;  // 50 → 15
             this.ctx.shadowColor = `rgba(${p.color}, ${p.alpha})`;
             this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             this.ctx.fill();
