@@ -2,7 +2,7 @@ body {
     margin: 0;
     overflow: hidden;
     background: url("bell_image.png") center/cover no-repeat fixed;
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    font-family: "Noto Serif JP", serif;
 }
 
 * {
@@ -15,7 +15,7 @@ body {
     font-size: 32px;
     text-shadow: 0 0 10px rgba(255,255,255,0.8);
     margin-bottom: 40px;
-    font-weight: bold;
+    font-weight: 700; 
     text-align: center;
 }
 
