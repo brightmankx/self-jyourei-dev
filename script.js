@@ -11,7 +11,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const btnPlus = document.getElementById("btnPlus");
     const btnMinus = document.getElementById("btnMinus");
 
-    const btnSmall = document.getElementById("btnSmall");
+    const btnSmall = document.getElementBygetElementById("btnSmall");
     const btnMedium = document.getElementById("btnMedium");
     const btnLarge = document.getElementById("btnLarge");
 
@@ -27,7 +27,6 @@ window.addEventListener("DOMContentLoaded", () => {
     // UI に反映
     tvSensitivityValue.textContent = shakeThreshold;
 
-    // ▼ 選択中のサイズボタンを強調
     function updateSizeButtons() {
         btnSmall.classList.remove("active");
         btnMedium.classList.remove("active");
@@ -143,48 +142,51 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     // ----------------------------------------------------
-    // 振って鳴らすロジック（iPhone最適化版）
+    // 振って鳴らすロジック（iPhone SE 最適化版）
     // ----------------------------------------------------
-if (window.DeviceMotionEvent) {
-    let last = 0;
-    let shakePower = 0;
-    let lastShakeTime = 0;
+    if (window.DeviceMotionEvent) {
+        let lastMagnitude = 0;
+        let shakePower = 0;
+        let lastShakeTime = 0;
 
-    const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-    const COOLDOWN = isiOS ? 350 : 150;
-    const FILTER = isiOS ? 0.85 : 0.9;
+        const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        const COOLDOWN = isiOS ? 350 : 150;
+        const FILTER = isiOS ? 0.85 : 0.9;
 
-    window.addEventListener("devicemotion", (event) => {
-        const acc = event.acceleration;
-        if (!acc) return;
+        window.addEventListener("devicemotion", (event) => {
+            const acc = event.acceleration;
+            if (!acc) return;
 
-        // 3軸の合成加速度（ノイズに強い）
-        const magnitude = Math.sqrt(
-            (acc.x || 0) ** 2 +
-            (acc.y || 0) ** 2 +
-            (acc.z || 0) ** 2
-        );
+            // 3軸合成加速度（iPhone SE のノイズに強い）
+            const magnitude = Math.sqrt(
+                (acc.x || 0) ** 2 +
+                (acc.y || 0) ** 2 +
+                (acc.z || 0) ** 2
+            );
 
-        if (last === 0) {
-            last = magnitude;
-            return;
-        }
+            if (lastMagnitude === 0) {
+                lastMagnitude = magnitude;
+                return;
+            }
 
-        const delta = magnitude - last;
-        last = magnitude;
+            const delta = magnitude - lastMagnitude;
+            lastMagnitude = magnitude;
 
-        // 減衰フィルタ
-        shakePower = shakePower * FILTER + delta;
+            shakePower = shakePower * FILTER + delta;
 
-        const now = Date.now();
-        if (now - lastShakeTime < COOLDOWN) return;
+            const now = Date.now();
+            if (now - lastShakeTime < COOLDOWN) return;
 
-        if (Math.abs(shakePower) > shakeThreshold) {
-            lastShakeTime = now;
+            if (Math.abs(shakePower) > shakeThreshold) {
+                lastShakeTime = now;
 
-            const index = Math.floor(Math.random() * 8) + 1;
-            new Audio(`bell_${index}.mp3`).play();
-        }
-    });
-}
+                // ★ クールダウン開始時に shakePower をリセット
+                shakePower = 0;
+                lastMagnitude = 0;
+
+                const index = Math.floor(Math.random() * 8) + 1;
+                new Audio(`bell_${index}.mp3`).play();
+            }
+        });
+    }
 });
