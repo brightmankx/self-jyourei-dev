@@ -52,19 +52,24 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // ----------------------------------------------------
-    // クリック音
+    // クリック音（Audio は iPhone のために事前生成）
     // ----------------------------------------------------
+    const audioTin = new Audio("tin.mp3");
+    const audioBowl = new Audio("bowl.mp3");
+
     if (btnTin) {
         btnTin.addEventListener("click", async () => {
             await requestIOSMotionPermission();
-            new Audio("tin.mp3").play();
+            audioTin.currentTime = 0;
+            audioTin.play();
         });
     }
 
     if (btnBowl) {
         btnBowl.addEventListener("click", async () => {
             await requestIOSMotionPermission();
-            new Audio("bowl.mp3").play();
+            audioBowl.currentTime = 0;
+            audioBowl.play();
         });
     }
 
@@ -141,41 +146,35 @@ window.addEventListener("DOMContentLoaded", () => {
     // 振って鳴らすロジック（iPhone最適化版）
     // ----------------------------------------------------
     if (window.DeviceMotionEvent) {
-        let accelCurrent = 0;
-        let accelLast = 0;
-        let shake = 0;
-
-        // ▼ iPhoneだけ余韻が長いのでクールダウンを長めにする
-        const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        let lastX = null;
+        let shakePower = 0;
         let lastShakeTime = 0;
-        const SHAKE_COOLDOWN = isiOS ? 200 : 150;
+
+        const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        const COOLDOWN = isiOS ? 350 : 150;  // iPhone は長め
+        const FILTER = isiOS ? 0.85 : 0.9;   // iPhone は強めに減衰
 
         window.addEventListener("devicemotion", (event) => {
-            const acc = event.accelerationIncludingGravity;
+            const acc = event.acceleration; // gravity を除外
             if (!acc) return;
 
-            const x = acc.x;
+            const x = acc.x || 0;
 
-            if (accelLast === 0 && accelCurrent === 0) {
-                accelLast = x;
-                accelCurrent = x;
+            if (lastX === null) {
+                lastX = x;
                 return;
             }
 
-            accelLast = accelCurrent;
-            accelCurrent = x;
+            const delta = x - lastX;
+            lastX = x;
 
-            const delta = accelCurrent - accelLast;
-
-            // 余韻を残すフィルタ
-            shake = shake * 0.9 + delta;
+            // iPhone は余韻が強いので強めに減衰
+            shakePower = shakePower * FILTER + delta;
 
             const now = Date.now();
+            if (now - lastShakeTime < COOLDOWN) return;
 
-            // ▼ iPhoneの余韻シェイクを切る
-            if (now - lastShakeTime < SHAKE_COOLDOWN) return;
-
-            if (shake < -shakeThreshold) {
+            if (Math.abs(shakePower) > shakeThreshold) {
                 lastShakeTime = now;
 
                 const index = Math.floor(Math.random() * 8) + 1;
