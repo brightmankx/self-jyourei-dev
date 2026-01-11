@@ -146,23 +146,29 @@ window.addEventListener("DOMContentLoaded", () => {
     let bellLock = false; // ★ 再生ロック
 
     // ----------------------------------------------------
-    // ★ iPhone SE 救済：画面タップで bell_1 を鳴らす
+    // ★ ボタン以外をタップしたときだけ bell_1 を鳴らす
     // ----------------------------------------------------
-    document.body.addEventListener("touchstart", () => {
-        const audio = bellSounds[0]; // bell_1
-        audio.currentTime = 0;
-        audio.play();
+    document.body.addEventListener("touchstart", (e) => {
+
+        // ボタン類は除外
+        const ignoreIds = ["btnTin", "btnBowl", "btnKyouten", "btnSettings"];
+        if (ignoreIds.includes(e.target.id)) return;
+
+        // bell_1 を重ねて鳴らす
+        const audio = bellSounds[0];
+        const clone = audio.cloneNode();
+        clone.play();
     });
 
     // ----------------------------------------------------
-    // ★ Android / iPhone（SE以外）向け：揺れ検知（devicemotion）
+    // ★ Android / iPhone（SE以外）向け：揺れ検知
     // ----------------------------------------------------
     if (window.DeviceMotionEvent) {
         let lastMagnitude = 0;
         let shakePower = 0;
 
         const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-        const COOLDOWN = isiOS ? 350 : 150;
+        const COOLDOWN = isiOS ? 100 : 100;
         const FILTER = isiOS ? 0.85 : 0.9;
 
         let canShake = true;
