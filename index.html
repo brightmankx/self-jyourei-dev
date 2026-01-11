@@ -83,6 +83,42 @@
     <!-- ▼ スクリプト -->
     <script src="script.js"></script>
 
+<script>
+let sensorStarted = false;
+
+document.body.addEventListener("touchstart", function () {
+    if (!sensorStarted) {
+
+        // ① ベル音を鳴らす（あなたの既存の音を使うなら変更OK）
+        const bell = new Audio("tin.mp3"); // ← 必要なら bell.mp3 に変更
+        bell.play();
+
+        // ② iPhone のセンサー許可をリクエスト
+        if (typeof DeviceMotionEvent.requestPermission === "function") {
+            DeviceMotionEvent.requestPermission()
+                .then(response => {
+                    if (response === "granted") {
+                        startSensor();
+                    }
+                })
+                .catch(console.error);
+        } else {
+            // Android / PC
+            startSensor();
+        }
+
+        sensorStarted = true;
+    }
+});
+
+function startSensor() {
+    window.addEventListener("devicemotion", (event) => {
+        // ここに既存のシェイク判定処理を入れる
+        // 例: handleShake(event);
+    });
+}
+</script>
+
     <!-- ▼ PWA Service Worker 登録 -->
     <script>
         if ("serviceWorker" in navigator) {
