@@ -148,7 +148,7 @@ window.addEventListener("DOMContentLoaded", () => {
         // ▼ iPhoneだけ余韻が長いのでクールダウンを長めにする
         const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
         let lastShakeTime = 0;
-        const SHAKE_COOLDOWN = isiOS ? 200 : 150;
+        const SHAKE_COOLDOWN = isiOS ? 150 : 150;
 
         window.addEventListener("devicemotion", (event) => {
             const acc = event.accelerationIncludingGravity;
