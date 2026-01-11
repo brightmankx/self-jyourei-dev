@@ -11,7 +11,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const btnPlus = document.getElementById("btnPlus");
     const btnMinus = document.getElementById("btnMinus");
 
-    const btnSmall = document.getElementBygetElementById("btnSmall");
+    const btnSmall = document.getElementById("btnSmall");
     const btnMedium = document.getElementById("btnMedium");
     const btnLarge = document.getElementById("btnLarge");
 
