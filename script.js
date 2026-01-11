@@ -1,4 +1,8 @@
 window.addEventListener("DOMContentLoaded", () => {
+
+    // ----------------------------------------------------
+    // ボタン取得
+    // ----------------------------------------------------
     const btnTin = document.getElementById("btnTin");
     const btnBowl = document.getElementById("btnBowl");
     const btnKyouten = document.getElementById("btnKyouten");
@@ -6,7 +10,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const overlay = document.getElementById("settingsOverlay");
 
-    // ▼ 設定ダイアログ内の要素
     const tvSensitivityValue = document.getElementById("tvSensitivityValue");
     const btnPlus = document.getElementById("btnPlus");
     const btnMinus = document.getElementById("btnMinus");
@@ -19,12 +22,11 @@ window.addEventListener("DOMContentLoaded", () => {
     const btnCancel = document.getElementById("btnCancel");
 
     // ----------------------------------------------------
-    // 設定値（localStorage）
+    // 設定値
     // ----------------------------------------------------
     let shakeThreshold = Number(localStorage.getItem("shakeThreshold") || 12);
     let mantraSize = localStorage.getItem("mantraSize") || "medium";
 
-    // UI に反映
     tvSensitivityValue.textContent = shakeThreshold;
 
     function updateSizeButtons() {
@@ -39,7 +41,7 @@ window.addEventListener("DOMContentLoaded", () => {
     updateSizeButtons();
 
     // ----------------------------------------------------
-    // iPhone用：最初のタップでモーションセンサー許可
+    // iPhone センサー許可
     // ----------------------------------------------------
     async function requestIOSMotionPermission() {
         if (typeof DeviceMotionEvent !== "undefined" &&
@@ -51,7 +53,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // ----------------------------------------------------
-    // クリック音（Audio は iPhone のために事前生成）
+    // クリック音（事前生成）
     // ----------------------------------------------------
     const audioTin = new Audio("tin.mp3");
     const audioBowl = new Audio("bowl.mp3");
@@ -93,9 +95,6 @@ window.addEventListener("DOMContentLoaded", () => {
         if (e.target === overlay) overlay.style.display = "none";
     });
 
-    // ----------------------------------------------------
-    // 感度（＋ / −）
-    // ----------------------------------------------------
     btnPlus.addEventListener("click", () => {
         shakeThreshold++;
         tvSensitivityValue.textContent = shakeThreshold;
@@ -107,9 +106,6 @@ window.addEventListener("DOMContentLoaded", () => {
         tvSensitivityValue.textContent = shakeThreshold;
     });
 
-    // ----------------------------------------------------
-    // 文字サイズ（小 / 中 / 大）
-    // ----------------------------------------------------
     btnSmall.addEventListener("click", () => {
         mantraSize = "small";
         updateSizeButtons();
@@ -125,24 +121,30 @@ window.addEventListener("DOMContentLoaded", () => {
         updateSizeButtons();
     });
 
-    // ----------------------------------------------------
-    // OK → 保存
-    // ----------------------------------------------------
     btnOk.addEventListener("click", () => {
         localStorage.setItem("shakeThreshold", shakeThreshold);
         localStorage.setItem("mantraSize", mantraSize);
         overlay.style.display = "none";
     });
 
-    // ----------------------------------------------------
-    // キャンセル
-    // ----------------------------------------------------
     btnCancel.addEventListener("click", () => {
         overlay.style.display = "none";
     });
 
     // ----------------------------------------------------
-    // 振って鳴らすロジック（iPhone SE 最適化版）
+    // ★ ベル音を事前読み込み（Android 二重再生対策）
+    // ----------------------------------------------------
+    const bellSounds = [];
+    for (let i = 1; i <= 8; i++) {
+        const audio = new Audio(`bell_${i}.mp3`);
+        audio.preload = "auto";
+        bellSounds.push(audio);
+    }
+
+    let bellLock = false; // ★ 再生ロック
+
+    // ----------------------------------------------------
+    // 振って鳴らす（iPhone SE 対策＋Android 二重再生対策）
     // ----------------------------------------------------
     if (window.DeviceMotionEvent) {
         let lastMagnitude = 0;
@@ -152,13 +154,12 @@ window.addEventListener("DOMContentLoaded", () => {
         const COOLDOWN = isiOS ? 350 : 150;
         const FILTER = isiOS ? 0.85 : 0.9;
 
-        let canShake = true;  // ★ クールダウン中は false
+        let canShake = true;
 
         window.addEventListener("devicemotion", (event) => {
             const acc = event.acceleration;
             if (!acc) return;
 
-            // 3軸合成加速度（iPhone SE のノイズに強い）
             const magnitude = Math.sqrt(
                 (acc.x || 0) ** 2 +
                 (acc.y || 0) ** 2 +
@@ -175,18 +176,25 @@ window.addEventListener("DOMContentLoaded", () => {
 
             shakePower = shakePower * FILTER + delta;
 
-            // ★ クールダウン中は無視
             if (!canShake) return;
 
             if (Math.abs(shakePower) > shakeThreshold) {
-                canShake = false;   // ロック
-                shakePower = 0;     // リセット
+                canShake = false;
+                shakePower = 0;
                 lastMagnitude = 0;
 
                 const index = Math.floor(Math.random() * 8) + 1;
-                new Audio(`bell_${index}.mp3`).play();
+                const audio = bellSounds[index - 1];
 
-                // ★ 一定時間後にロック解除
+                if (!bellLock) {
+                    bellLock = true;
+                    audio.currentTime = 0;
+                    audio.play();
+                    audio.onended = () => {
+                        bellLock = false;
+                    };
+                }
+
                 setTimeout(() => {
                     canShake = true;
                 }, COOLDOWN);
