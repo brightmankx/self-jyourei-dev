@@ -145,41 +145,46 @@ window.addEventListener("DOMContentLoaded", () => {
     // ----------------------------------------------------
     // 振って鳴らすロジック（iPhone最適化版）
     // ----------------------------------------------------
-    if (window.DeviceMotionEvent) {
-        let lastX = null;
-        let shakePower = 0;
-        let lastShakeTime = 0;
+if (window.DeviceMotionEvent) {
+    let last = 0;
+    let shakePower = 0;
+    let lastShakeTime = 0;
 
-        const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-        const COOLDOWN = isiOS ? 350 : 150;  // iPhone は長め
-        const FILTER = isiOS ? 0.85 : 0.9;   // iPhone は強めに減衰
+    const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const COOLDOWN = isiOS ? 350 : 150;
+    const FILTER = isiOS ? 0.85 : 0.9;
 
-        window.addEventListener("devicemotion", (event) => {
-            const acc = event.acceleration; // gravity を除外
-            if (!acc) return;
+    window.addEventListener("devicemotion", (event) => {
+        const acc = event.acceleration;
+        if (!acc) return;
 
-            const x = acc.x || 0;
+        // 3軸の合成加速度（ノイズに強い）
+        const magnitude = Math.sqrt(
+            (acc.x || 0) ** 2 +
+            (acc.y || 0) ** 2 +
+            (acc.z || 0) ** 2
+        );
 
-            if (lastX === null) {
-                lastX = x;
-                return;
-            }
+        if (last === 0) {
+            last = magnitude;
+            return;
+        }
 
-            const delta = x - lastX;
-            lastX = x;
+        const delta = magnitude - last;
+        last = magnitude;
 
-            // iPhone は余韻が強いので強めに減衰
-            shakePower = shakePower * FILTER + delta;
+        // 減衰フィルタ
+        shakePower = shakePower * FILTER + delta;
 
-            const now = Date.now();
-            if (now - lastShakeTime < COOLDOWN) return;
+        const now = Date.now();
+        if (now - lastShakeTime < COOLDOWN) return;
 
-            if (Math.abs(shakePower) > shakeThreshold) {
-                lastShakeTime = now;
+        if (Math.abs(shakePower) > shakeThreshold) {
+            lastShakeTime = now;
 
-                const index = Math.floor(Math.random() * 8) + 1;
-                new Audio(`bell_${index}.mp3`).play();
-            }
-        });
-    }
+            const index = Math.floor(Math.random() * 8) + 1;
+            new Audio(`bell_${index}.mp3`).play();
+        }
+    });
+}
 });
