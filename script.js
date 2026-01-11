@@ -41,16 +41,22 @@ window.addEventListener("DOMContentLoaded", () => {
     updateSizeButtons();
 
     // ----------------------------------------------------
-    // iPhone センサー許可
+    // iPhone：最初のタップでセンサー許可
     // ----------------------------------------------------
-    async function requestIOSMotionPermission() {
+    let iosPermissionRequested = false;
+
+    document.body.addEventListener("touchstart", async () => {
+        if (iosPermissionRequested) return;
+
         if (typeof DeviceMotionEvent !== "undefined" &&
             typeof DeviceMotionEvent.requestPermission === "function") {
             try {
                 await DeviceMotionEvent.requestPermission();
             } catch (e) {}
         }
-    }
+
+        iosPermissionRequested = true;
+    }, { once: true });
 
     // ----------------------------------------------------
     // クリック音（事前生成）
@@ -60,7 +66,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
     if (btnTin) {
         btnTin.addEventListener("click", async () => {
-            await requestIOSMotionPermission();
             audioTin.currentTime = 0;
             audioTin.play();
         });
@@ -68,15 +73,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
     if (btnBowl) {
         btnBowl.addEventListener("click", async () => {
-            await requestIOSMotionPermission();
             audioBowl.currentTime = 0;
             audioBowl.play();
         });
     }
 
     if (btnKyouten) {
-        btnKyouten.addEventListener("click", async () => {
-            await requestIOSMotionPermission();
+        btnKyouten.addEventListener("click", () => {
             window.location.href = "mantra_select.html";
         });
     }
@@ -85,8 +88,7 @@ window.addEventListener("DOMContentLoaded", () => {
     // 設定ダイアログ
     // ----------------------------------------------------
     if (btnSettings) {
-        btnSettings.addEventListener("click", async () => {
-            await requestIOSMotionPermission();
+        btnSettings.addEventListener("click", () => {
             overlay.style.display = "flex";
         });
     }
