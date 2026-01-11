@@ -172,8 +172,8 @@ window.addEventListener("DOMContentLoaded", () => {
         let lastMagnitude = 0;
         let shakePower = 0;
 
-        const FILTER = 0.75;   // ★ 最適化：反応速度アップ
-        const COOLDOWN = 100;  // ★ 最適化：反応速度優先
+        const FILTER = 0.60;   // ★ 最適化：反応速度アップ
+        const COOLDOWN = 50;  // ★ 最適化：反応速度優先
 
         let canShake = true;
 
