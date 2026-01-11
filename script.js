@@ -65,14 +65,14 @@ window.addEventListener("DOMContentLoaded", () => {
     const audioBowl = new Audio("bowl.mp3");
 
     if (btnTin) {
-        btnTin.addEventListener("click", async () => {
+        btnTin.addEventListener("click", () => {
             audioTin.currentTime = 0;
             audioTin.play();
         });
     }
 
     if (btnBowl) {
-        btnBowl.addEventListener("click", async () => {
+        btnBowl.addEventListener("click", () => {
             audioBowl.currentTime = 0;
             audioBowl.play();
         });
@@ -146,44 +146,42 @@ window.addEventListener("DOMContentLoaded", () => {
     let bellLock = false; // ★ 再生ロック
 
     // ----------------------------------------------------
-    // 振って鳴らす（iPhone SE 対策＋Android 二重再生対策）
+    // ★ 方向変化方式（最速・最安定）
     // ----------------------------------------------------
-    if (window.DeviceMotionEvent) {
-        let lastMagnitude = 0;
-        let shakePower = 0;
-
-        const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-        const COOLDOWN = isiOS ? 100 : 100;
-        const FILTER = isiOS ? 0.85 : 0.9;
+    if (window.DeviceOrientationEvent) {
+        let lastAlpha = null;
+        let lastBeta = null;
+        let lastGamma = null;
 
         let canShake = true;
+        const COOLDOWN = 200; // 反応速度優先
+        const ANGLE_THRESHOLD = shakeThreshold; // 設定値をそのまま角度閾値に使う
 
-        window.addEventListener("devicemotion", (event) => {
-            const acc = event.acceleration;
-            if (!acc) return;
+        window.addEventListener("deviceorientation", (event) => {
+            const { alpha, beta, gamma } = event;
+            if (alpha === null) return;
 
-            const magnitude = Math.sqrt(
-                (acc.x || 0) ** 2 +
-                (acc.y || 0) ** 2 +
-                (acc.z || 0) ** 2
-            );
-
-            if (lastMagnitude === 0) {
-                lastMagnitude = magnitude;
+            if (lastAlpha === null) {
+                lastAlpha = alpha;
+                lastBeta = beta;
+                lastGamma = gamma;
                 return;
             }
 
-            const delta = magnitude - lastMagnitude;
-            lastMagnitude = magnitude;
+            // 3軸の角度変化量
+            const diff =
+                Math.abs(alpha - lastAlpha) +
+                Math.abs(beta - lastBeta) +
+                Math.abs(gamma - lastGamma);
 
-            shakePower = shakePower * FILTER + delta;
+            lastAlpha = alpha;
+            lastBeta = beta;
+            lastGamma = gamma;
 
             if (!canShake) return;
 
-            if (Math.abs(shakePower) > shakeThreshold) {
+            if (diff > ANGLE_THRESHOLD) {
                 canShake = false;
-                shakePower = 0;
-                lastMagnitude = 0;
 
                 const index = Math.floor(Math.random() * 8) + 1;
                 const audio = bellSounds[index - 1];
