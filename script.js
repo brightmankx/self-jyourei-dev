@@ -138,15 +138,17 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     // ----------------------------------------------------
-    // 振って鳴らすロジック
+    // 振って鳴らすロジック（iPhone最適化版）
     // ----------------------------------------------------
     if (window.DeviceMotionEvent) {
         let accelCurrent = 0;
         let accelLast = 0;
         let shake = 0;
 
-        let lastBellTime = 0;
-        const coolTime = 150;
+        // ▼ iPhoneだけ余韻が長いのでクールダウンを長めにする
+        const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        let lastShakeTime = 0;
+        const SHAKE_COOLDOWN = isiOS ? 150 : 100;
 
         window.addEventListener("devicemotion", (event) => {
             const acc = event.accelerationIncludingGravity;
@@ -165,13 +167,16 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const delta = accelCurrent - accelLast;
 
+            // 余韻を残すフィルタ
             shake = shake * 0.9 + delta;
 
             const now = Date.now();
-            if (now - lastBellTime < coolTime) return;
+
+            // ▼ iPhoneの余韻シェイクを切る
+            if (now - lastShakeTime < SHAKE_COOLDOWN) return;
 
             if (shake < -shakeThreshold) {
-                lastBellTime = now;
+                lastShakeTime = now;
 
                 const index = Math.floor(Math.random() * 8) + 1;
                 new Audio(`bell_${index}.mp3`).play();
