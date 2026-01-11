@@ -147,11 +147,12 @@ window.addEventListener("DOMContentLoaded", () => {
     if (window.DeviceMotionEvent) {
         let lastMagnitude = 0;
         let shakePower = 0;
-        let lastShakeTime = 0;
 
         const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
         const COOLDOWN = isiOS ? 350 : 150;
         const FILTER = isiOS ? 0.85 : 0.9;
+
+        let canShake = true;  // ★ クールダウン中は false
 
         window.addEventListener("devicemotion", (event) => {
             const acc = event.acceleration;
@@ -174,18 +175,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
             shakePower = shakePower * FILTER + delta;
 
-            const now = Date.now();
-            if (now - lastShakeTime < COOLDOWN) return;
+            // ★ クールダウン中は無視
+            if (!canShake) return;
 
             if (Math.abs(shakePower) > shakeThreshold) {
-                lastShakeTime = now;
-
-                // ★ クールダウン開始時に shakePower をリセット
-                shakePower = 0;
+                canShake = false;   // ロック
+                shakePower = 0;     // リセット
                 lastMagnitude = 0;
 
                 const index = Math.floor(Math.random() * 8) + 1;
                 new Audio(`bell_${index}.mp3`).play();
+
+                // ★ 一定時間後にロック解除
+                setTimeout(() => {
+                    canShake = true;
+                }, COOLDOWN);
             }
         });
     }
