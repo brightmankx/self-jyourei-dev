@@ -153,7 +153,7 @@ window.addEventListener("DOMContentLoaded", () => {
         let shakePower = 0;
 
         const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-        const COOLDOWN = isiOS ? 350 : 150;
+        const COOLDOWN = isiOS ? 100 : 100;
         const FILTER = isiOS ? 0.85 : 0.9;
 
         let canShake = true;
