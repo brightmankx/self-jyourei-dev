@@ -146,30 +146,34 @@ window.addEventListener("DOMContentLoaded", () => {
     let bellLock = false; // ★ 再生ロック
 
     // ----------------------------------------------------
-    // ★ ボタン以外をタップしたときだけ bell_1 を鳴らす
+    // ★ iPhone SE 判定（第1〜第3世代）
     // ----------------------------------------------------
-    document.body.addEventListener("touchstart", (e) => {
-
-        // ボタン類は除外
-        const ignoreIds = ["btnTin", "btnBowl", "btnKyouten", "btnSettings"];
-        if (ignoreIds.includes(e.target.id)) return;
-
-        // bell_1 を重ねて鳴らす
-        const audio = bellSounds[0];
-        const clone = audio.cloneNode();
-        clone.play();
-    });
+    const isIPhoneSE = /iPhone SE|iPhone8,4|iPhone12,8|iPhone14,6/.test(navigator.userAgent);
 
     // ----------------------------------------------------
-    // ★ Android / iPhone（SE以外）向け：揺れ検知
+    // ★ iPhone SE だけタップで bell_1 を鳴らす
     // ----------------------------------------------------
-    if (window.DeviceMotionEvent) {
+    if (isIPhoneSE) {
+        document.body.addEventListener("touchstart", (e) => {
+            const ignoreIds = ["btnTin", "btnBowl", "btnKyouten", "btnSettings"];
+            if (ignoreIds.includes(e.target.id)) return;
+
+            const audio = bellSounds[0];
+            const clone = audio.cloneNode();
+            clone.play();
+        });
+    }
+
+    // ----------------------------------------------------
+    // ★ Android / iPhone（通常）向け：揺れ検知（FILTER 最適化）
+    // ----------------------------------------------------
+    if (!isIPhoneSE && window.DeviceMotionEvent) {
+
         let lastMagnitude = 0;
         let shakePower = 0;
 
-        const isiOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-        const COOLDOWN = isiOS ? 100 : 100;
-        const FILTER = isiOS ? 0.85 : 0.9;
+        const FILTER = 0.75;   // ★ 最適化：反応速度アップ
+        const COOLDOWN = 100;  // ★ 最適化：反応速度優先
 
         let canShake = true;
 
