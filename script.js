@@ -146,12 +146,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let bellLock = false;
 
     // ----------------------------------------------------
-    // ★ iPhone SE 判定
-    // ----------------------------------------------------
-    const isIPhoneSE = /iPhone SE|iPhone8,4|iPhone12,8|iPhone14,6/.test(navigator.userAgent);
-
-    // ----------------------------------------------------
-    // ★ 最初のタップで Audio ロック解除（Android / iPhone 共通）
+    // ★ 最初のタップで Audio ロック解除（全端末）
     // ----------------------------------------------------
     let audioUnlocked = false;
 
@@ -163,33 +158,77 @@ window.addEventListener("DOMContentLoaded", () => {
     }, { once: true });
 
     // ----------------------------------------------------
-    // ★ iPhone SE だけタップで bell_1
+    // ★ 全端末：タップで bell_1〜8 をランダム再生
     // ----------------------------------------------------
-    if (isIPhoneSE) {
-        document.body.addEventListener("touchstart", (e) => {
-            const ignoreIds = ["btnTin", "btnBowl", "btnKyouten", "btnSettings"];
-            if (ignoreIds.includes(e.target.id)) return;
+    document.body.addEventListener("touchstart", (e) => {
+        const ignoreIds = ["btnTin", "btnBowl", "btnKyouten", "btnSettings"];
+        if (ignoreIds.includes(e.target.id)) return;
 
-            const a = bellSounds[0];
-            const clone = a.cloneNode();
-            clone.play();
+        const index = Math.floor(Math.random() * 8);
+        const audio = bellSounds[index];
+        const clone = audio.cloneNode();
+        clone.play();
+    });
+
+    // ----------------------------------------------------
+    // ★ 4段階フォールバック：揺れ検知
+    // ----------------------------------------------------
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isIPhoneSE = /iPhone SE|iPhone8,4|iPhone12,8|iPhone14,6/.test(navigator.userAgent);
+
+    // iPhone SE は揺れ検知しない
+    if (isIPhoneSE) return;
+
+    // 共通パラメータ
+    const FILTER = 0.35;
+    const COOLDOWN = 40;
+
+    let canShake = true;
+
+    function triggerBell() {
+        if (bellLock) return;
+        bellLock = true;
+
+        const index = Math.floor(Math.random() * 8);
+        const audio = bellSounds[index];
+
+        audio.currentTime = 0;
+        audio.play();
+        audio.onended = () => bellLock = false;
+    }
+
+    // ----------------------------------------------------
+    // ① rotationRate（最速）
+    // ----------------------------------------------------
+    if (window.DeviceMotionEvent) {
+        window.addEventListener("devicemotion", (event) => {
+            if (!event.rotationRate) return;
+
+            const r = event.rotationRate;
+            if (r.alpha === null && r.beta === null && r.gamma === null) return;
+
+            const delta =
+                Math.abs(r.alpha || 0) +
+                Math.abs(r.beta || 0) +
+                Math.abs(r.gamma || 0);
+
+            if (!canShake) return;
+
+            if (delta > shakeThreshold) {
+                canShake = false;
+                triggerBell();
+                setTimeout(() => canShake = true, COOLDOWN);
+            }
         });
     }
 
     // ----------------------------------------------------
-    // ★ Android：超高速 orientation 揺れ検知
+    // ② deviceorientation（中速）
     // ----------------------------------------------------
-    const isAndroid = /Android/i.test(navigator.userAgent);
-
-    if (isAndroid && window.DeviceOrientationEvent) {
-
+    if (window.DeviceOrientationEvent) {
         let lastGamma = null;
         let lastBeta = null;
         let shakePower = 0;
-
-        const FILTER = 0.35;
-        const COOLDOWN = 40;
-        let canShake = true;
 
         window.addEventListener("deviceorientation", (event) => {
             if (event.gamma === null || event.beta === null) return;
@@ -215,37 +254,18 @@ window.addEventListener("DOMContentLoaded", () => {
             if (shakePower > shakeThreshold) {
                 canShake = false;
                 shakePower = 0;
-
-                const index = Math.floor(Math.random() * 8) + 1;
-                const audio = bellSounds[index - 1];
-
-                if (!bellLock) {
-                    bellLock = true;
-                    audio.currentTime = 0;
-                    audio.play();
-                    audio.onended = () => {
-                        bellLock = false;
-                    };
-                }
-
-                setTimeout(() => {
-                    canShake = true;
-                }, COOLDOWN);
+                triggerBell();
+                setTimeout(() => canShake = true, COOLDOWN);
             }
         });
     }
 
     // ----------------------------------------------------
-    // ★ iPhone（通常）：devicemotion 揺れ検知
+    // ③ devicemotion（加速度）
     // ----------------------------------------------------
-    if (!isAndroid && !isIPhoneSE && window.DeviceMotionEvent) {
-
+    if (window.DeviceMotionEvent) {
         let lastMagnitude = 0;
         let shakePower = 0;
-
-        const FILTER = 0.35;
-        const COOLDOWN = 40;
-        let canShake = true;
 
         window.addEventListener("devicemotion", (event) => {
             const acc = event.acceleration;
@@ -273,23 +293,10 @@ window.addEventListener("DOMContentLoaded", () => {
                 canShake = false;
                 shakePower = 0;
                 lastMagnitude = 0;
-
-                const index = Math.floor(Math.random() * 8) + 1;
-                const audio = bellSounds[index - 1];
-
-                if (!bellLock) {
-                    bellLock = true;
-                    audio.currentTime = 0;
-                    audio.play();
-                    audio.onended = () => {
-                        bellLock = false;
-                    };
-                }
-
-                setTimeout(() => {
-                    canShake = true;
-                }, COOLDOWN);
+                triggerBell();
+                setTimeout(() => canShake = true, COOLDOWN);
             }
         });
     }
+
 });
