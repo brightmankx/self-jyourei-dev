@@ -134,7 +134,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     // ----------------------------------------------------
-    // ★ ベル音を事前読み込み（Android 二重再生対策）
+    // ★ ベル音を事前読み込み
     // ----------------------------------------------------
     const bellSounds = [];
     for (let i = 1; i <= 8; i++) {
@@ -143,37 +143,49 @@ window.addEventListener("DOMContentLoaded", () => {
         bellSounds.push(audio);
     }
 
-    let bellLock = false; // ★ 再生ロック
+    let bellLock = false;
 
     // ----------------------------------------------------
-    // ★ iPhone SE 判定（第1〜第3世代）
+    // ★ iPhone SE 判定
     // ----------------------------------------------------
     const isIPhoneSE = /iPhone SE|iPhone8,4|iPhone12,8|iPhone14,6/.test(navigator.userAgent);
 
     // ----------------------------------------------------
-    // ★ iPhone SE だけタップで bell_1 を鳴らす
+    // ★ 最初のタップで Audio ロック解除（Android / iPhone 共通）
+    // ----------------------------------------------------
+    let audioUnlocked = false;
+
+    document.body.addEventListener("touchstart", () => {
+        if (!audioUnlocked) {
+            bellSounds[0].play().catch(()=>{});
+            audioUnlocked = true;
+        }
+    }, { once: true });
+
+    // ----------------------------------------------------
+    // ★ iPhone SE だけタップで bell_1
     // ----------------------------------------------------
     if (isIPhoneSE) {
         document.body.addEventListener("touchstart", (e) => {
             const ignoreIds = ["btnTin", "btnBowl", "btnKyouten", "btnSettings"];
             if (ignoreIds.includes(e.target.id)) return;
 
-            const audio = bellSounds[0];
-            const clone = audio.cloneNode();
+            const a = bellSounds[0];
+            const clone = a.cloneNode();
             clone.play();
         });
     }
 
     // ----------------------------------------------------
-    // ★ Android / iPhone（通常）向け：揺れ検知（FILTER 最適化）
+    // ★ Android / iPhone（通常）向け：超高速揺れ検知
     // ----------------------------------------------------
     if (!isIPhoneSE && window.DeviceMotionEvent) {
 
         let lastMagnitude = 0;
         let shakePower = 0;
 
-        const FILTER = 0.40;   // ★ 最適化：反応速度アップ
-        const COOLDOWN = 30;  // ★ 最適化：反応速度優先
+        const FILTER = 0.35;   // ★ 超高速
+        const COOLDOWN = 40;   // ★ 連続発火対応
 
         let canShake = true;
 
@@ -192,14 +204,15 @@ window.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const delta = magnitude - lastMagnitude;
+            // ★ 反応速度最大化：絶対値で変化量を取る
+            const delta = Math.abs(magnitude - lastMagnitude);
             lastMagnitude = magnitude;
 
             shakePower = shakePower * FILTER + delta;
 
             if (!canShake) return;
 
-            if (Math.abs(shakePower) > shakeThreshold) {
+            if (shakePower > shakeThreshold) {
                 canShake = false;
                 shakePower = 0;
                 lastMagnitude = 0;
