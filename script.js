@@ -177,16 +177,74 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // ----------------------------------------------------
-    // ★ Android / iPhone（通常）向け：超高速揺れ検知
+    // ★ Android：超高速 orientation 揺れ検知
     // ----------------------------------------------------
-    if (!isIPhoneSE && window.DeviceMotionEvent) {
+    const isAndroid = /Android/i.test(navigator.userAgent);
+
+    if (isAndroid && window.DeviceOrientationEvent) {
+
+        let lastGamma = null;
+        let lastBeta = null;
+        let shakePower = 0;
+
+        const FILTER = 0.35;
+        const COOLDOWN = 40;
+        let canShake = true;
+
+        window.addEventListener("deviceorientation", (event) => {
+            if (event.gamma === null || event.beta === null) return;
+
+            if (lastGamma === null) {
+                lastGamma = event.gamma;
+                lastBeta = event.beta;
+                return;
+            }
+
+            const deltaGamma = Math.abs(event.gamma - lastGamma);
+            const deltaBeta = Math.abs(event.beta - lastBeta);
+
+            lastGamma = event.gamma;
+            lastBeta = event.beta;
+
+            const delta = deltaGamma + deltaBeta;
+
+            shakePower = shakePower * FILTER + delta;
+
+            if (!canShake) return;
+
+            if (shakePower > shakeThreshold) {
+                canShake = false;
+                shakePower = 0;
+
+                const index = Math.floor(Math.random() * 8) + 1;
+                const audio = bellSounds[index - 1];
+
+                if (!bellLock) {
+                    bellLock = true;
+                    audio.currentTime = 0;
+                    audio.play();
+                    audio.onended = () => {
+                        bellLock = false;
+                    };
+                }
+
+                setTimeout(() => {
+                    canShake = true;
+                }, COOLDOWN);
+            }
+        });
+    }
+
+    // ----------------------------------------------------
+    // ★ iPhone（通常）：devicemotion 揺れ検知
+    // ----------------------------------------------------
+    if (!isAndroid && !isIPhoneSE && window.DeviceMotionEvent) {
 
         let lastMagnitude = 0;
         let shakePower = 0;
 
-        const FILTER = 0.35;   // ★ 超高速
-        const COOLDOWN = 40;   // ★ 連続発火対応
-
+        const FILTER = 0.35;
+        const COOLDOWN = 40;
         let canShake = true;
 
         window.addEventListener("devicemotion", (event) => {
@@ -204,7 +262,6 @@ window.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // ★ 反応速度最大化：絶対値で変化量を取る
             const delta = Math.abs(magnitude - lastMagnitude);
             lastMagnitude = magnitude;
 
