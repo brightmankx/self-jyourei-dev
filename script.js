@@ -177,7 +177,7 @@ window.addEventListener("DOMContentLoaded", () => {
         let shake = 0;
 
         let lastBellTime = 0;
-        const coolTime = 120; // 毎秒8回まで追従
+        const coolTime = 200; // 毎秒8回まで追従
 
         window.addEventListener("devicemotion", (event) => {
             const acc = event.accelerationIncludingGravity;
