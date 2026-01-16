@@ -167,51 +167,56 @@ window.addEventListener("DOMContentLoaded", () => {
         audio.play();
     });
 
-// ----------------------------------------------------
-// ★ 方向転換（増加→減少）検出方式：チチン完全消滅版
-// ----------------------------------------------------
-if (window.DeviceMotionEvent) {
+    // ----------------------------------------------------
+    // ★ 全端末対応：蓄積方式（script1ベース）＋チチン抑制
+    // ----------------------------------------------------
+    if (window.DeviceMotionEvent) {
 
-    let lastX = null;
-    let lastDelta = 0;
-    let lastBellTime = 0;
+        let accelCurrent = 0;
+        let accelLast = 0;
+        let shake = 0;
 
-    const coolTime = 200; // 毎秒8回まで追従
+        let lastBellTime = 0;
+        const coolTime = 120; // 毎秒8回まで追従
 
-    window.addEventListener("devicemotion", (event) => {
-        const acc = event.accelerationIncludingGravity;
-        if (!acc) return;
+        window.addEventListener("devicemotion", (event) => {
+            const acc = event.accelerationIncludingGravity;
+            if (!acc) return;
 
-        const x = acc.x;
+            const x = acc.x;
 
-        if (lastX === null) {
-            lastX = x;
-            return;
-        }
-
-        const delta = x - lastX;
-        lastX = x;
-
-        // 感度判定
-        if (Math.abs(delta) < shakeThreshold) return;
-
-        // ★ 方向転換（増加→減少）を検出
-        if (lastDelta < 0 && delta > 0) {
-
-            const now = Date.now();
-            if (now - lastBellTime < coolTime) {
-                lastDelta = delta;
+            // 初期化
+            if (accelLast === 0 && accelCurrent === 0) {
+                accelLast = x;
+                accelCurrent = x;
                 return;
             }
 
-            lastBellTime = now;
+            accelLast = accelCurrent;
+            accelCurrent = x;
 
-            const index = Math.floor(Math.random() * 8) + 1;
-            const audio = new Audio(`bell_${index}.mp3`);
-            audio.play();
-        }
+            let delta = accelCurrent - accelLast;
 
-        lastDelta = delta;
-    });
-}
+            // ★ iPhone は delta が小さすぎるので補正
+            if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                delta *= 2.5;
+            }
+
+            // ★ 蓄積方式（script1 と同じ）
+            shake = shake * 0.7 + delta;
+
+            const now = Date.now();
+            if (now - lastBellTime < coolTime) return;
+
+            // ★ 感度判定
+            if (Math.abs(shake) > shakeThreshold) {
+                lastBellTime = now;
+
+                const index = Math.floor(Math.random() * 8) + 1;
+                const audio = new Audio(`bell_${index}.mp3`);
+                audio.play();
+            }
+        });
+    }
+
 });
