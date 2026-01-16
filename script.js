@@ -175,7 +175,7 @@ if (window.DeviceMotionEvent) {
     let lastX = null;
     let lastSign = 0;
     let lastBellTime = 0;
-    const coolTime = 100; // 毎秒25回まで追従
+    const coolTime = 1000; // 毎秒25回まで追従
 
     window.addEventListener("devicemotion", (event) => {
         const acc = event.accelerationIncludingGravity;
