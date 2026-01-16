@@ -196,7 +196,7 @@ if (window.DeviceMotionEvent) {
         if (Math.abs(delta) < shakeThreshold) return;
 
         // ★ 方向転換（増加→減少）を検出
-        if (lastDelta > 0 && delta < 0) {
+        if (lastDelta < 0 && delta > 0) {
 
             const now = Date.now();
             if (now - lastBellTime < coolTime) {
