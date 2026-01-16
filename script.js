@@ -168,16 +168,15 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
 // ----------------------------------------------------
-// ★ 方向固定ゼロクロス（正→負のみ）＋反転直後1回だけ鳴らす
+// ★ 方向転換（増加→減少）検出方式：チチン完全消滅版
 // ----------------------------------------------------
 if (window.DeviceMotionEvent) {
 
     let lastX = null;
-    let lastSign = 0;
-    let allowTrigger = false;   // ← 反転直後だけ true
+    let lastDelta = 0;
     let lastBellTime = 0;
 
-    const coolTime = 500; // ← ここは確実に効く
+    const coolTime = 200; // 毎秒8回まで追従
 
     window.addEventListener("devicemotion", (event) => {
         const acc = event.accelerationIncludingGravity;
@@ -185,10 +184,8 @@ if (window.DeviceMotionEvent) {
 
         const x = acc.x;
 
-        // 初期化
         if (lastX === null) {
             lastX = x;
-            lastSign = Math.sign(x);
             return;
         }
 
@@ -198,27 +195,23 @@ if (window.DeviceMotionEvent) {
         // 感度判定
         if (Math.abs(delta) < shakeThreshold) return;
 
-        const sign = Math.sign(x);
+        // ★ 方向転換（増加→減少）を検出
+        if (lastDelta > 0 && delta < 0) {
 
-        // ★ 正 → 負 の方向だけ検出
-        if (lastSign > 0 && sign < 0) {
-            allowTrigger = true;   // ← この瞬間だけ許可
+            const now = Date.now();
+            if (now - lastBellTime < coolTime) {
+                lastDelta = delta;
+                return;
+            }
+
+            lastBellTime = now;
+
+            const index = Math.floor(Math.random() * 8) + 1;
+            const audio = new Audio(`bell_${index}.mp3`);
+            audio.play();
         }
-        lastSign = sign;
 
-        // 許可されていないなら無視
-        if (!allowTrigger) return;
-
-        // クールタイム
-        const now = Date.now();
-        if (now - lastBellTime < coolTime) return;
-
-        // ★ ここで1回だけ鳴らす
-        allowTrigger = false;
-        lastBellTime = now;
-
-        const index = Math.floor(Math.random() * 8) + 1;
-        const audio = new Audio(`bell_${index}.mp3`);
-        audio.play();
+        lastDelta = delta;
     });
-}});
+}
+});
