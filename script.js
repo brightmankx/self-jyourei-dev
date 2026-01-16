@@ -168,7 +168,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     // ----------------------------------------------------
-    // ★ 全端末対応：蓄積方式（script1ベース）＋チチン抑制
+    // ★ ハイブリッド方式（蓄積 × 方向転換）＋ クールタイム250ms
     // ----------------------------------------------------
     if (window.DeviceMotionEvent) {
 
@@ -176,8 +176,10 @@ window.addEventListener("DOMContentLoaded", () => {
         let accelLast = 0;
         let shake = 0;
 
+        let lastDelta = 0;
         let lastBellTime = 0;
-        const coolTime = 200; // 毎秒8回まで追従
+
+        const coolTime = 250;
 
         window.addEventListener("devicemotion", (event) => {
             const acc = event.accelerationIncludingGravity;
@@ -202,20 +204,27 @@ window.addEventListener("DOMContentLoaded", () => {
                 delta *= 2.5;
             }
 
-            // ★ 蓄積方式（script1 と同じ）
+            // ★ 蓄積方式（全端末対応）
             shake = shake * 0.7 + delta;
 
-            const now = Date.now();
-            if (now - lastBellTime < coolTime) return;
+            // ★ 方向転換（増加→減少 or 減少→増加）
+            const turning = (lastDelta > 0 && delta < 0) || (lastDelta < 0 && delta > 0);
 
-            // ★ 感度判定
-            if (Math.abs(shake) > shakeThreshold) {
+            const now = Date.now();
+
+            if (
+                turning &&                          // 方向転換
+                Math.abs(shake) > shakeThreshold && // 蓄積が閾値超え
+                now - lastBellTime >= coolTime      // クールタイム
+            ) {
                 lastBellTime = now;
 
                 const index = Math.floor(Math.random() * 8) + 1;
                 const audio = new Audio(`bell_${index}.mp3`);
                 audio.play();
             }
+
+            lastDelta = delta;
         });
     }
 
