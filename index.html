@@ -2,11 +2,44 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ▼ 画面回転を完全に禁止する最強設定 -->
+    <meta name="viewport"
+          content="width=device-width,
+                   initial-scale=1.0,
+                   maximum-scale=1.0,
+                   user-scalable=no,
+                   viewport-fit=cover">
+
+    <!-- Android Chrome / WebView 用：縦固定 -->
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+
+    <!-- PWA 用：縦固定（manifest.json と連動） -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
     <title>セルフ浄霊</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght:300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+
+    <!-- ▼ CSS で縦固定を物理的に強制 -->
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: none; /* 回転ジェスチャー無効化 */
+        }
+
+        /* iOS Safari の回転抑止 */
+        body {
+            transform: rotate(0deg) !important;
+            transform-origin: center center;
+        }
+    </style>
 </head>
 
 <body>
@@ -58,22 +91,16 @@
     <!-- ▼ メイン画面 -->
     <div id="container">
 
-        <!-- タイトル -->
         <div id="title">セルフ浄霊</div>
 
-        <!-- 設定アイコン -->
         <img src="ic_settings.png" id="btnSettings" class="icon-button" alt="設定">
 
-        <!-- ティンシャ -->
         <img src="tin.png" id="btnTin" class="action-button" alt="ティンシャ">
 
-        <!-- おりん -->
         <img src="bowl.png" id="btnBowl" class="action-button" alt="おりん">
 
-        <!-- 経典 -->
         <img src="kyouten.png" id="btnKyouten" class="action-button" alt="経典">
 
-        <!-- Powered by -->
         <a href="https://www.youtube.com/@jasmine358" target="_blank">
             <img src="powered_by.png" id="btnPowered" class="powered" alt="Powered by Jasmine">
         </a>
