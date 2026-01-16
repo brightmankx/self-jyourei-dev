@@ -177,7 +177,7 @@ if (window.DeviceMotionEvent) {
     let allowTrigger = false;   // ← 反転直後だけ true
     let lastBellTime = 0;
 
-    const coolTime = 200; // ← ここは確実に効く
+    const coolTime = 500; // ← ここは確実に効く
 
     window.addEventListener("devicemotion", (event) => {
         const acc = event.accelerationIncludingGravity;
