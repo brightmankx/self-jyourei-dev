@@ -167,52 +167,50 @@ window.addEventListener("DOMContentLoaded", () => {
         audio.play();
     });
 
-    // ----------------------------------------------------
-    // ★ 高速連続シェイク対応・安定版揺れ検知
-    // ----------------------------------------------------
-    if (window.DeviceMotionEvent) {
+// ----------------------------------------------------
+// ★ ゼロクロス方式・高速連続シェイク対応
+// ----------------------------------------------------
+if (window.DeviceMotionEvent) {
 
-        let accelCurrent = 0;
-        let accelLast = 0;
-        let shake = 0;
+    let lastX = null;
+    let lastSign = 0;
+    let lastBellTime = 0;
+    const coolTime = 40; // 毎秒25回まで追従
 
-        let lastBellTime = 0;
-        const coolTime = 60;  // ← 毎秒4回以上に追従
+    window.addEventListener("devicemotion", (event) => {
+        const acc = event.accelerationIncludingGravity;
+        if (!acc) return;
 
-        window.addEventListener("devicemotion", (event) => {
-            const acc = event.accelerationIncludingGravity;
-            if (!acc) return;
+        const x = acc.x;
 
-            const x = acc.x;
+        // 初期化
+        if (lastX === null) {
+            lastX = x;
+            return;
+        }
 
-            // 初期化
-            if (accelLast === 0 && accelCurrent === 0) {
-                accelLast = x;
-                accelCurrent = x;
-                return;
-            }
+        // 変化量
+        const delta = x - lastX;
+        lastX = x;
 
-            accelLast = accelCurrent;
-            accelCurrent = x;
+        // 感度判定
+        if (Math.abs(delta) < shakeThreshold) return;
 
-            const delta = accelCurrent - accelLast;
+        // ゼロクロス判定
+        const sign = Math.sign(x);
+        if (sign === 0 || sign === lastSign) return;
+        lastSign = sign;
 
-            // フィルタ（0.7 が高速シェイクに最適）
-            shake = shake * 0.7 + delta;
+        // クールタイム
+        const now = Date.now();
+        if (now - lastBellTime < coolTime) return;
+        lastBellTime = now;
 
-            const now = Date.now();
-            if (now - lastBellTime < coolTime) return;
-
-            // 感度設定（shakeThreshold）をそのまま使用
-            if (Math.abs(shake) > shakeThreshold) {
-                lastBellTime = now;
-
-                // 音を重ねて鳴らす
-                const index = Math.floor(Math.random() * 8) + 1;
-                const audio = new Audio(`bell_${index}.mp3`);
-                audio.play();
-            }
-        });
-    }
+        // 音を重ねて鳴らす
+        const index = Math.floor(Math.random() * 8) + 1;
+        const audio = new Audio(`bell_${index}.mp3`);
+        audio.play();
+    });
+}
 
 });
