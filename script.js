@@ -179,7 +179,7 @@ window.addEventListener("DOMContentLoaded", () => {
         let lastDelta = 0;
         let lastBellTime = 0;
 
-        const coolTime = 250;
+        const coolTime = 150;
 
         window.addEventListener("devicemotion", (event) => {
             const acc = event.accelerationIncludingGravity;
