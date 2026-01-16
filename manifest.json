@@ -1,8 +1,9 @@
 {
   "name": "セルフ浄霊",
-  "short_name": "浄霊",
+  "short_name": "セルフ浄霊",
   "start_url": "index.html",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
