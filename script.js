@@ -176,7 +176,7 @@ if (window.DeviceMotionEvent) {
     let lastSign = 0;
     let lastBellTime = 0;
 
-    const coolTime = 100; // ← ここを変えれば確実に効く
+    const coolTime = 1000; // ← ここを変えれば確実に効く
 
     window.addEventListener("devicemotion", (event) => {
         const acc = event.accelerationIncludingGravity;
