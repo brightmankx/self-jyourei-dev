@@ -168,14 +168,15 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
 // ----------------------------------------------------
-// ★ ゼロクロス方式・高速連続シェイク対応
+// ★ クールタイムが絶対に効く揺れ検知（完成版）
 // ----------------------------------------------------
 if (window.DeviceMotionEvent) {
 
     let lastX = null;
     let lastSign = 0;
     let lastBellTime = 0;
-    const coolTime = 1000; // 毎秒25回まで追従
+
+    const coolTime = 100; // ← ここを変えれば確実に効く
 
     window.addEventListener("devicemotion", (event) => {
         const acc = event.accelerationIncludingGravity;
@@ -186,22 +187,22 @@ if (window.DeviceMotionEvent) {
         // 初期化
         if (lastX === null) {
             lastX = x;
+            lastSign = Math.sign(x);
             return;
         }
 
-        // 変化量
         const delta = x - lastX;
         lastX = x;
 
         // 感度判定
         if (Math.abs(delta) < shakeThreshold) return;
 
-        // ゼロクロス判定
+        // 符号反転（1周期に1回だけ起きる）
         const sign = Math.sign(x);
         if (sign === 0 || sign === lastSign) return;
         lastSign = sign;
 
-        // クールタイム
+        // クールタイム（絶対にすり抜けない）
         const now = Date.now();
         if (now - lastBellTime < coolTime) return;
         lastBellTime = now;
@@ -212,5 +213,4 @@ if (window.DeviceMotionEvent) {
         audio.play();
     });
 }
-
 });
