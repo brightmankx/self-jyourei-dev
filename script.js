@@ -168,15 +168,16 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
 // ----------------------------------------------------
-// ★ クールタイムが絶対に効く揺れ検知（完成版）
+// ★ 方向固定ゼロクロス（正→負のみ）＋反転直後1回だけ鳴らす
 // ----------------------------------------------------
 if (window.DeviceMotionEvent) {
 
     let lastX = null;
     let lastSign = 0;
+    let allowTrigger = false;   // ← 反転直後だけ true
     let lastBellTime = 0;
 
-    const coolTime = 1000; // ← ここを変えれば確実に効く
+    const coolTime = 200; // ← ここは確実に効く
 
     window.addEventListener("devicemotion", (event) => {
         const acc = event.accelerationIncludingGravity;
@@ -197,20 +198,27 @@ if (window.DeviceMotionEvent) {
         // 感度判定
         if (Math.abs(delta) < shakeThreshold) return;
 
-        // 符号反転（1周期に1回だけ起きる）
         const sign = Math.sign(x);
-        if (sign === 0 || sign === lastSign) return;
+
+        // ★ 正 → 負 の方向だけ検出
+        if (lastSign > 0 && sign < 0) {
+            allowTrigger = true;   // ← この瞬間だけ許可
+        }
         lastSign = sign;
 
-        // クールタイム（絶対にすり抜けない）
+        // 許可されていないなら無視
+        if (!allowTrigger) return;
+
+        // クールタイム
         const now = Date.now();
         if (now - lastBellTime < coolTime) return;
+
+        // ★ ここで1回だけ鳴らす
+        allowTrigger = false;
         lastBellTime = now;
 
-        // 音を重ねて鳴らす
         const index = Math.floor(Math.random() * 8) + 1;
         const audio = new Audio(`bell_${index}.mp3`);
         audio.play();
     });
-}
-});
+}});
