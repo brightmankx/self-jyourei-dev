@@ -1,4 +1,5 @@
 window.addEventListener("DOMContentLoaded", () => {
+
     // ----------------------------------------------------
     // 要素取得
     // ----------------------------------------------------
@@ -142,22 +143,6 @@ window.addEventListener("DOMContentLoaded", () => {
         bellSounds.push(audio);
     }
 
-    let bellLock = false;
-
-    function triggerBell() {
-        if (bellLock) return;
-        bellLock = true;
-
-        const index = Math.floor(Math.random() * bellSounds.length);
-        const audio = bellSounds[index];
-
-        audio.currentTime = 0;
-        audio.play();
-        audio.onended = () => {
-            bellLock = false;
-        };
-    }
-
     // ----------------------------------------------------
     // 最初のタップで Audio ロック解除
     // ----------------------------------------------------
@@ -171,113 +156,63 @@ window.addEventListener("DOMContentLoaded", () => {
     }, { once: true });
 
     // ----------------------------------------------------
-    // 全端末：タップで bell_1〜8 をランダム再生
+    // タップで bell_1〜8 をランダム再生（重ねて鳴る）
     // ----------------------------------------------------
     document.body.addEventListener("touchstart", (e) => {
         const ignoreIds = ["btnTin", "btnBowl", "btnKyouten", "btnSettings"];
         if (ignoreIds.includes(e.target.id)) return;
 
         const index = Math.floor(Math.random() * bellSounds.length);
-        const audio = bellSounds[index];
-        const clone = audio.cloneNode();
-        clone.play();
+        const audio = bellSounds[index].cloneNode();
+        audio.play();
     });
 
     // ----------------------------------------------------
-    // 揺れ検知（センサー融合・感度は shakeThreshold）
+    // ★ 高速連続シェイク対応・安定版揺れ検知
     // ----------------------------------------------------
-    const FILTER = 0.35;
-    const COOLDOWN = 40;
-    let canShake = true;
-
-    // ① rotationRate（ジャイロ）
     if (window.DeviceMotionEvent) {
-        window.addEventListener("devicemotion", (event) => {
-            const r = event.rotationRate;
-            if (!r) return;
-            if (r.alpha == null && r.beta == null && r.gamma == null) return;
 
-            const delta =
-                Math.abs(r.alpha || 0) +
-                Math.abs(r.beta || 0) +
-                Math.abs(r.gamma || 0);
+        let accelCurrent = 0;
+        let accelLast = 0;
+        let shake = 0;
 
-            if (!canShake) return;
-            if (delta > shakeThreshold) {
-                canShake = false;
-                triggerBell();
-                setTimeout(() => { canShake = true; }, COOLDOWN);
-            }
-        });
-    }
-
-    // ② deviceorientation（傾き）
-    if (window.DeviceOrientationEvent) {
-        let lastGamma = null;
-        let lastBeta = null;
-        let shakePower = 0;
-
-        window.addEventListener("deviceorientation", (event) => {
-            if (event.gamma == null || event.beta == null) return;
-
-            if (lastGamma == null) {
-                lastGamma = event.gamma;
-                lastBeta = event.beta;
-                return;
-            }
-
-            const deltaGamma = Math.abs(event.gamma - lastGamma);
-            const deltaBeta = Math.abs(event.beta - lastBeta);
-
-            lastGamma = event.gamma;
-            lastBeta = event.beta;
-
-            const delta = deltaGamma + deltaBeta;
-            shakePower = shakePower * FILTER + delta;
-
-            if (!canShake) return;
-            if (shakePower > shakeThreshold) {
-                canShake = false;
-                shakePower = 0;
-                triggerBell();
-                setTimeout(() => { canShake = true; }, COOLDOWN);
-            }
-        });
-    }
-
-    // ③ devicemotion（加速度 / 重力込み）
-    if (window.DeviceMotionEvent) {
-        let lastMagnitude = 0;
-        let shakePower = 0;
+        let lastBellTime = 0;
+        const coolTime = 60;  // ← 毎秒4回以上に追従
 
         window.addEventListener("devicemotion", (event) => {
-            const acc = event.accelerationIncludingGravity || event.acceleration;
+            const acc = event.accelerationIncludingGravity;
             if (!acc) return;
 
-            const magnitude = Math.sqrt(
-                (acc.x || 0) ** 2 +
-                (acc.y || 0) ** 2 +
-                (acc.z || 0) ** 2
-            );
+            const x = acc.x;
 
-            if (lastMagnitude === 0) {
-                lastMagnitude = magnitude;
+            // 初期化
+            if (accelLast === 0 && accelCurrent === 0) {
+                accelLast = x;
+                accelCurrent = x;
                 return;
             }
 
-            const delta = Math.abs(magnitude - lastMagnitude);
-            lastMagnitude = magnitude;
+            accelLast = accelCurrent;
+            accelCurrent = x;
 
-            shakePower = shakePower * FILTER + delta;
+            const delta = accelCurrent - accelLast;
 
-            if (!canShake) return;
-            if (shakePower > shakeThreshold) {
-                canShake = false;
-                shakePower = 0;
-                lastMagnitude = 0;
-                triggerBell();
-                setTimeout(() => { canShake = true; }, COOLDOWN);
+            // フィルタ（0.7 が高速シェイクに最適）
+            shake = shake * 0.7 + delta;
+
+            const now = Date.now();
+            if (now - lastBellTime < coolTime) return;
+
+            // 感度設定（shakeThreshold）をそのまま使用
+            if (Math.abs(shake) > shakeThreshold) {
+                lastBellTime = now;
+
+                // 音を重ねて鳴らす
+                const index = Math.floor(Math.random() * 8) + 1;
+                const audio = new Audio(`bell_${index}.mp3`);
+                audio.play();
             }
         });
     }
+
 });
