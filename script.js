@@ -146,7 +146,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let bellLock = false;
 
     // ----------------------------------------------------
-    // ★ 最初のタップで Audio ロック解除（全端末）
+    // ★ 最初のタップで Audio ロック解除 + Android センサー解放
     // ----------------------------------------------------
     let audioUnlocked = false;
 
@@ -154,6 +154,10 @@ window.addEventListener("DOMContentLoaded", () => {
         if (!audioUnlocked) {
             bellSounds[0].play().catch(()=>{});
             audioUnlocked = true;
+
+            // ★ Android Chrome のセンサー解放（最重要）
+            window.addEventListener("devicemotion", () => {}, { once: true });
+            window.addEventListener("deviceorientation", () => {}, { once: true });
         }
     }, { once: true });
 
