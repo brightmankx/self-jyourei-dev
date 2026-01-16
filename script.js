@@ -168,8 +168,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
 // ----------------------------------------------------
-// ★ 正→負（方向固定）＋ 上昇→下降（方向転換）
-//     → チチン完全消滅ロジック
+// ★ 方向転換（増加→減少）検出方式：チチン完全消滅版
 // ----------------------------------------------------
 if (window.DeviceMotionEvent) {
 
@@ -177,7 +176,7 @@ if (window.DeviceMotionEvent) {
     let lastDelta = 0;
     let lastBellTime = 0;
 
-    const coolTime = 120; // 毎秒8回まで追従
+    const coolTime = 200; // 毎秒8回まで追従
 
     window.addEventListener("devicemotion", (event) => {
         const acc = event.accelerationIncludingGravity;
@@ -194,29 +193,22 @@ if (window.DeviceMotionEvent) {
         lastX = x;
 
         // 感度判定
-        if (Math.abs(delta) < shakeThreshold) {
-            lastDelta = delta;
-            return;
-        }
+        if (Math.abs(delta) < shakeThreshold) return;
 
-        // ★ 上昇 → 下降 の方向転換を検出
-        const turningDown = (lastDelta > 0 && delta < 0);
-
-        // ★ 正 → 負 のゼロクロスを検出
-        const zeroCross = (x < 0);
-
-        // ★ 両方同時に成立した瞬間だけ鳴らす
-        if (turningDown && zeroCross) {
+        // ★ 方向転換（増加→減少）を検出
+        if (lastDelta > 0 && delta < 0) {
 
             const now = Date.now();
-            if (now - lastBellTime >= coolTime) {
-
-                lastBellTime = now;
-
-                const index = Math.floor(Math.random() * 8) + 1;
-                const audio = new Audio(`bell_${index}.mp3`);
-                audio.play();
+            if (now - lastBellTime < coolTime) {
+                lastDelta = delta;
+                return;
             }
+
+            lastBellTime = now;
+
+            const index = Math.floor(Math.random() * 8) + 1;
+            const audio = new Audio(`bell_${index}.mp3`);
+            audio.play();
         }
 
         lastDelta = delta;
